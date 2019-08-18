@@ -24,7 +24,7 @@ def get_ip_port():
          Your local address is something like 192.168.1.105 or 172.16.1.101.
          After finding IP open this link in browser:
          http://ip_address:%s
-         where ip_address is your local IP address."""
+         where ip_address is your local IP address.""" % PORT_NUMBER
     finally:
         s.close()
     return IP
