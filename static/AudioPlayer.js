@@ -2,6 +2,8 @@
 
 'use strict';
 
+
+
 var AudioPlayer = (function() {
 
     var aphtml =
@@ -50,8 +52,11 @@ var AudioPlayer = (function() {
     '        <button class="ap-controls ap-repeat-btn">'+
     '          <i class="material-icons md-dark">repeat</i>'+
     '        </button>'+
-    '        <button class="ap-controls ap-playlist-btn">'+
+    '        <button class="ap-controls ap-playlist-btn ap-active hide">'+
     '          <i class="material-icons md-dark">queue_music</i>'+
+    '        </button>'+
+    '        <button class="ap-controls ap-shuffle-btn">'+
+    '          <i class="material-icons md-dark">shuffle</i>'+
     '        </button>'+
     '      </div>'+
     '    </div>'+
@@ -65,6 +70,7 @@ var AudioPlayer = (function() {
   prevBtn,
   nextBtn,
   plBtn,
+  shuffleBtn,
   repeatBtn,
   volumeBtn,
   progressBar,
@@ -74,10 +80,12 @@ var AudioPlayer = (function() {
   trackTitle,
   audio,
   index = 0,
+  indexes,
   playList,
   volumeBar,
   volumeLength,
   repeating = false,
+  shuffling = false,
   seeking = false,
   rightClick = false,
   apActive = false,
@@ -92,6 +100,14 @@ var AudioPlayer = (function() {
     notification: false,
     playList : []
   };
+
+  function shuffle_range(n,shuffle){
+    var shuf = (array) => array.sort(() => Math.random() - 0.5);
+    var A = [];
+    for (var i = 0;i < n; i++)
+      A.push(i);
+    return shuffle? shuf(A): A;
+  }
 
   function init(options) {
 
@@ -118,6 +134,7 @@ var AudioPlayer = (function() {
     prevBtn        = player.querySelector('.ap-prev-btn');
     nextBtn        = player.querySelector('.ap-next-btn');
     repeatBtn      = player.querySelector('.ap-repeat-btn');
+    shuffleBtn     = player.querySelector('.ap-shuffle-btn');
     volumeBtn      = player.querySelector('.ap-volume-btn');
     plBtn          = player.querySelector('.ap-playlist-btn');
     curTime        = player.querySelector('.ap-time--current');
@@ -128,10 +145,11 @@ var AudioPlayer = (function() {
     volumeBar      = player.querySelector('.ap-volume-bar');
 
     playList = settings.playList;
-
+    indexes = shuffle_range(playList.length,false);
     playBtn.addEventListener('click', playToggle, false);
     volumeBtn.addEventListener('click', volumeToggle, false);
     repeatBtn.addEventListener('click', repeatToggle, false);
+    shuffleBtn.addEventListener('click', shuffleToggle, false);
 
     progressBar.parentNode.parentNode.addEventListener('mousedown', handlerBar, false);
     progressBar.parentNode.parentNode.addEventListener('mousemove', seek, false);
@@ -156,15 +174,14 @@ var AudioPlayer = (function() {
     audio.volume = settings.volume;
 
 
-
     if(isEmptyList()) {
       empty();
       return;
     }
 
-    audio.src = playList[index].file;
-    audio.preload = 'auto';
-    trackTitle.innerHTML = playList[index].title;
+    audio.src = playList[indexes[index]].file;
+    audio.preload = 'none';
+    trackTitle.innerHTML = playList[indexes[index]].title;
     volumeBar.style.height = audio.volume * 100 + '%';
     volumeLength = volumeBar.css('height');
 
@@ -175,7 +192,7 @@ var AudioPlayer = (function() {
     if(settings.autoPlay) {
       audio.play();
       playBtn.classList.add('playing');
-      plLi[index].classList.add('pl-current');
+      plLi[indexes[index]].classList.add('pl-current');
     }
   }
 
@@ -196,7 +213,7 @@ var AudioPlayer = (function() {
                 '<div class="eq-bar"></div>'+
                 '<div class="eq-bar"></div>'+
               '</div>'+
-            '</div>'+
+            '</div>'+ 
           '</div>'+
           '<div class="pl-title">{title}</div>'+
           '<button class="pl-remove">'+
@@ -211,7 +228,7 @@ var AudioPlayer = (function() {
       });
 
       pl = create('div', {
-        'className': 'pl-container hide',
+        'className': 'pl-container',
         'id': 'pl',
         'innerHTML': !isEmptyList() ? '<ul class="pl-list">' + html.join('') + '</ul>' : '<div class="pl-empty">PlayList is empty</div>'
       });
@@ -227,6 +244,9 @@ var AudioPlayer = (function() {
       evt.preventDefault();
       if(evt.target.className === 'pl-title') {
         var current = parseInt(evt.target.parentNode.getAttribute('data-track'), 10);
+        shuffling = false;
+        indexes = shuffle_range(playList.length,shuffling);
+        shuffleBtn.classList.remove('ap-active');
         index = current;
         play();
         plActive();
@@ -248,7 +268,7 @@ var AudioPlayer = (function() {
 
             if(!audio.paused) {
 
-              if(isDel === index) {
+              if(isDel === indexes[index]) {
                 play();
               }
 
@@ -259,14 +279,17 @@ var AudioPlayer = (function() {
               }
               else {
                 // audio.currentTime = 0;
-                audio.src = playList[index].file;
-                document.title = trackTitle.innerHTML = playList[index].title;
+                audio.src = playList[indexes[index]].file;
+                document.title = trackTitle.innerHTML = playList[indexes[index]].title;
                 progressBar.style.width = 0;
               }
             }
-            if(isDel < index) {
-              index--;
-            }
+            // test
+            indexes = shuffle_range(playList.length,shuffling);
+            index = 0
+            // if(isDel < index) {
+            //   index--;
+            // }
 
             return;
           }
@@ -278,10 +301,10 @@ var AudioPlayer = (function() {
 
     function plActive() {
       if(audio.paused) {
-        plLi[index].classList.remove('pl-current');
+        plLi[indexes[index]].classList.remove('pl-current');
         return;
       }
-      var current = index;
+      var current = indexes[index];
       for(var i = 0, len = plLi.length; len > i; i++) {
         plLi[i].classList.remove('pl-current');
       }
@@ -305,12 +328,12 @@ var AudioPlayer = (function() {
       return;
     }
 
-    audio.src = playList[index].file;
+    audio.src = playList[indexes[index]].file;
     audio.preload = 'auto';
-    document.title = trackTitle.innerHTML = playList[index].title;
+    document.title = trackTitle.innerHTML = playList[indexes[index]].title;
     audio.play();
-    notify(playList[index].title, {
-      icon: playList[index].icon,
+    notify(playList[indexes[index]].title, {
+      icon: playList[indexes[index]].icon,
       body: 'Now playing',
       tag: 'music-player'
     });
@@ -350,8 +373,8 @@ var AudioPlayer = (function() {
     }
     if(audio.paused) {
       audio.play();
-      notify(playList[index].title, {
-        icon: playList[index].icon,
+      notify(playList[indexes[index]].title, {
+        icon: playList[indexes[index]].icon,
         body: 'Now playing'
       });
       this.classList.add('playing');
@@ -380,6 +403,22 @@ var AudioPlayer = (function() {
       volumeBar.style.height = 0;
       this.classList.add('muted');
     }
+  }
+  function shuffleToggle() {
+    
+    var shuffle = this.classList;
+
+    if(shuffle.contains('ap-active')) {    
+      shuffling = false;      
+      shuffle.remove('ap-active');
+    }
+    else {      
+      shuffling = true;      
+      shuffle.add('ap-active');
+    }
+    index = 0;
+    indexes = shuffle_range(playList.length, shuffling);
+    play();
   }
 
   function repeatToggle() {
@@ -444,8 +483,8 @@ var AudioPlayer = (function() {
 
   function moveBar(evt, el, dir) {
     var value;
-    if(dir === 'horizontal') {
-      value = Math.round( ((evt.clientX - el.offset().left) + window.pageXOffset) * 100 / el.parentNode.offsetWidth);
+    if(dir === 'horizontal') {      
+      value = Math.round( ((evt.clientX - el.offset().left) + window.pageXOffset) * 100 / el.parentNode.offsetWidth);      
       el.style.width = value + '%';
       return value;
     }
@@ -474,7 +513,13 @@ var AudioPlayer = (function() {
   function seek(evt) {
     if(seeking && rightClick === false && audio.readyState !== 0) {
       var value = moveBar(evt, progressBar, 'horizontal');
+      //alert(audio.duration);
+      //alert(audio.currentTime)
+      //alert(audio.duration * (value / 100))
       audio.currentTime = audio.duration * (value / 100);
+      
+      //alert(audio.currentTime)
+      
     }
   }
 
@@ -612,6 +657,7 @@ var AudioPlayer = (function() {
     destroy: destroy
   };
 
+  
 })();
 
 window.AP = AudioPlayer;

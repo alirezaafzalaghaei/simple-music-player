@@ -1,46 +1,39 @@
 <!DOCTYPE html>
-<html >
-  <head>
-    <meta charset="UTF-8">
-    <title>Audio player HTML5</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<html>
+<head>
+	<title>Music player</title>
+	<link rel="stylesheet" href="static/AudioPlayer.css">
+    <style> </style>
+</head>
+<body>
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="css/AudioPlayer.css">
-    <style>
+<!-- <div id='player'></div> -->
 
-    #player{
-        position: relative;
-        max-width: 700px;
-        height: 500px;
-        border: solid 1px gray;
-    }
-    </style>
-  </head>
+<script src="static/AudioPlayer.js"></script>
+<script>
+    AP.init({        
+        volume   : 1,
+        autoPlay : false,
+        notification: false,
+        playList: [FILES]
+    });
 
-  <body>
-      <!-- Audio player container-->
-     <div id='player'></div>
+    function shortcuts(e) {      
+      switch(e.keyCode){
+      	case 32:
+      		document.getElementsByClassName('ap-toggle-btn')[0].click();
+      		break;  
+      	case 78:
+      		document.getElementsByClassName('ap-next-btn')[0].click();
+      		break;  
+      	case 80:
+      		document.getElementsByClassName('ap-prev-btn')[0].click();
+      		break; 
+      }
+  	}
+  window.addEventListener('keyup', shortcuts, false);
+  window.addEventListener('keydown', function(e){if (e.keyCode==32) e.preventDefault()}, false);
 
-    <!-- Audio player js begin-->
-    <script src="js/AudioPlayer.js"></script>
-
-    <script>
-        // test image for web notifications
-        var iconImage = null;
-
-        AP.init({
-            container:'#player',//a string containing one CSS selector
-            volume   : 0.7,
-            autoPlay : true,
-            notification: false,
-            playList: [
-                {'icon': iconImage, 'title': 'Try Everything', 'file': 'mp3/try-everything.mp3'},
-                {'icon': iconImage, 'title': 'Let It Go', 'file': 'mp3/let-it-go.mp3'}
-          ]
-        });
-    </script>
-    <!-- Audio player js end-->
-
-  </body>
+</script>
+</body>
 </html>

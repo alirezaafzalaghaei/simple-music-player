@@ -1,67 +1,47 @@
-# html5-audio-player
 
-## 1. introduce
-html5 audio player(with playlist) using flexbox, svg, css animations and  js api.
+# simple-music-player
 
-forked from @k-ivan at http://codepen.io/k-ivan/pen/pJMLmJ
+![simple-music-player-screenshot](simple-music-player.png)
 
-demo: [html5-audio-player](https://likev.github.io/html5-audio-player/ 'html5-audio-player demo')
+Simple music player is a web-based music player with playlist support written in HTML5, CSS3, JS handled by a simple python server. This project is based on @likev's [html5-audio-player](https://github.com/likev/html5-audio-player) work with some improvements such as a python web-server to serve requests along with some new features on front-end. I implemented two different python http servers to handle requests. The first uses python 3's built-in `http.server` module (`server.py`) and the second written in `sanic` a simple 3rd party asynchronous web server (`sanic_server.py`). I highly recommend to use second one but if you can't install this module, you can use `server.py` yet!
 
-![html5-audio-player-screenshot](html5-audio-player.png)
+Currently the aim of this project is developing a **simple web-based music player for local networks** and it's not optimized for large scale music-sharing usages. 
 
-## 2. how to use
-1. insert Google Material Icons and AudioPlayer.css before `</head>`
-2. insert AudioPlayer.js before `</body>`
-3. use AP.init function
+## 1. Features
+- Two different web servers (pure python and sanic)
+- Keyboard shorcuts!
+- Repeat and shuffle support.
+- Self contained (does not need any internet access)
 
-code example:
-```html
-<!DOCTYPE html>
-<html >
-  <head>
-    <meta charset="UTF-8">
-    <title>Audio player HTML5</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+## 2. Requirements
+- python 3.x
+- `sanic` module. install it by `pip install sanic`. Tested with sanic `19.6.2` on arch linux.
+- An updated browser and working speakers!
 
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="css/AudioPlayer.css">
-    <style>
+## 3. How to use
+In order to share `/home/user/Music` folder run one of the following commands:
 
-    #player{
-        position: relative;
-        max-width: 700px;
-        height: 500px;
-        border: solid 1px gray;
-    }
-    </style>
-  </head>
+    python3 sanic_server.py /home/user/Music
+or
 
-  <body>
-      <!-- Audio player container-->
-     <div id='player'></div>
+    python3 server.py /home/user/Music
 
-    <!-- Audio player js begin-->
-    <script src="js/AudioPlayer.js"></script>
+in which `python3` refers to python 3.x version. Now you can open the following address in your browser and enjoy listening to musics!
 
-    <script>
-        // test image for web notifications
-        var iconImage = null;
+    127.0.0.1:4444
 
-        AP.init({
-            container:'#player',//a string containing one CSS selector
-            volume   : 0.7,
-            autoPlay : true,
-            notification: false,
-            playList: [
-                {'icon': iconImage, 'title': 'Try Everything', 'file': 'mp3/try-everything.mp3'},
-                {'icon': iconImage, 'title': 'Let It Go', 'file': 'mp3/let-it-go.mp3'}
-          ]
-        });
-    </script>
-    <!-- Audio player js end-->
+You can change port number (4444) by editing `.py` files. In order to access music on local network, you should know your local IP address. This script tries to find your local IP address but if it can't, you can find it manually using OS specific commands such as `ipconfig`, `ifconfig`, `ip addr`, etc. or by graphical interface. Suppose your IP address is `192.168.1.106`, to access music on local network, other devices should open this link:
 
-  </body>
-</html>
-```
+    192.168.1.106:4444
 
-it will work!
+Note that sometimes network administrators define limitations on p2p connections, so if this app doesn't work talk to him!
+
+## 4. Keyboard shortcuts
+
+|  key  |    function    |
+|:-----:|:--------------:|
+| space |   play/pause   |
+|   n   |   next music   |
+|   p   | previous music |
+	
+ 
