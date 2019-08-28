@@ -5,7 +5,7 @@ import socket
 from sanic import Sanic
 from sanic.response import html
 
-HOST_NAME = '127.0.0.1'
+HOST_NAME = '0.0.0.0'
 PORT_NUMBER = 4444
 
 
@@ -14,16 +14,14 @@ def get_ip_port():
     try:
         s.connect(('10.255.255.255', 1))
         IP = "Open this link in other computers http://%s:%s" % (s.getsockname()[0], PORT_NUMBER)
+        print(IP)
+        return True
     except:
-        IP = """Can't find your local IP address.
-         Use 'ipconfig' and 'ifconfig' commands in windows and linux, respectively.
-         Your local address is something like 192.168.1.105 or 172.16.1.101.
-         After finding IP open this link in browser:
-         http://ip_address:%s
-         where ip_address is your local IP address.""" % PORT_NUMBER
+        IP = """Can't find your local IP address.\nUse 'ipconfig' and 'ifconfig' commands in windows and linux, respectively.\nYour local address is something like 192.168.1.105 or 172.16.1.101.\nAfter finding IP open this link in browser:\nhttp://ip_address:%s\nwhere ip_address is your local IP address.""" % PORT_NUMBER
+        print(IP)
+        return False
     finally:
         s.close()
-    return IP
 
 
 app = Sanic(configure_logging=False)
@@ -51,5 +49,7 @@ if __name__ == "__main__":
 
     app.static(fake_path, real_path)
     print('Listening to http://%s:%s' % (HOST_NAME, PORT_NUMBER))
-    print(get_ip_port())
+    if not get_ip_port():
+        exit(-1)
     app.run(host=HOST_NAME, port=PORT_NUMBER, access_log=False, debug=False)
+    print('\nShutting down server...')

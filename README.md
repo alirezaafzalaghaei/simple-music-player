@@ -28,7 +28,7 @@ or
 
 in which `python3` refers to python 3.x version. Now you can open the following address in your browser and enjoy listening to musics!
 
-    127.0.0.1:4444
+    0.0.0.0:4444
 
 You can change port number (4444) by editing `.py` files. In order to access music on local network, you should know your local IP address. This script tries to find your local IP address but if it can't, you can find it manually using OS specific commands such as `ipconfig`, `ifconfig`, `ip addr`, etc. or by graphical interface. Suppose your IP address is `192.168.1.106`, to access music on local network, other devices should open this link:
 
