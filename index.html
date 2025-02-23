@@ -18,15 +18,18 @@
         playList: [FILES]
     });
 
-    function shortcuts(e) {      
+    function shortcuts(e) {
       switch(e.keyCode){
       	case 32:
+      	case 13:
       		document.getElementsByClassName('ap-toggle-btn')[0].click();
       		break;  
       	case 78:
+      	case 39:
       		document.getElementsByClassName('ap-next-btn')[0].click();
       		break;  
       	case 80:
+      	case 37:
       		document.getElementsByClassName('ap-prev-btn')[0].click();
       		break; 
       }
